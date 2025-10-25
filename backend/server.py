@@ -12,13 +12,18 @@ from typing import List, Optional
 from datetime import datetime, timezone
 import io
 
+from util.generate_filename import generate_filename
+from google_drive_service import GoogleDriveService
+
 # === Setup ===
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR / '.env.local')
 
 # Upload config
 LOCAL_UPLOAD_ENABLED = os.environ.get('LOCAL_UPLOAD_ENABLED', 'false').lower() == 'true'
 UPLOADS_DIR = ROOT_DIR / 'uploads'
+GOOGLE_DRIVE_ENABLED = os.environ.get('GOOGLE_DRIVE_ENABLED', 'false').lower() == 'true'
+GOOGLE_DRIVE_FOLDER_ID = os.environ.get('GOOGLE_DRIVE_FOLDER_ID', None)
 
 if LOCAL_UPLOAD_ENABLED:
     UPLOADS_DIR.mkdir(exist_ok=True)
@@ -93,7 +98,10 @@ class MockGoogleDriveService:
         logger.info(f"Mock upload successful: {filename} (ID: {file_id})")
         return file_id, mock_link
 
-drive_service = MockGoogleDriveService()
+drive_service = (
+    GoogleDriveService() if GOOGLE_DRIVE_ENABLED
+    else MockGoogleDriveService()
+)
 
 # ===== Helper Functions =====
 def calculate_end_date(start_date_str: str, duration_days: int) -> str:
@@ -181,13 +189,15 @@ async def upload_prescription(file: UploadFile = File(...)):
         file_id = file.filename
         logger.info(f"Prescription uploaded locally: {file.filename}")
     else:
-        # Use mock Google Drive logic
+        # Use real Google Drive upload service
         file_id, file_url = await drive_service.upload_file(
-            file_content=file_content,
-            filename=file.filename,
-            mimetype=file.content_type
-        )
-        message = "File uploaded successfully (mock mode)."
+        file_content=file_content,
+        filename=generate_filename(file.filename),
+        mimetype=file.content_type,
+        folder_id=GOOGLE_DRIVE_FOLDER_ID
+    )
+    message = "File uploaded to Google Drive."
+
     await file.close()
     return PrescriptionUploadResponse(
         file_id=file_id,

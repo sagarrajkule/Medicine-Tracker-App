@@ -1,0 +1,23 @@
+# MongoDB connection string - replace with your actual MongoDB URI
+MONGO_URL="mongodb://username:password@host:port/database"
+
+# Database name
+DB_NAME="database_name_here"
+
+# CORS allowed origins, comma-separated or wildcard '*'
+CORS_ORIGINS="*"
+
+# Backend server port
+PORT=port_number_here
+
+# Enable or disable Google Drive uploads
+GOOGLE_DRIVE_ENABLED=true
+
+# Path to your Google OAuth credentials JSON file
+GOOGLE_CREDENTIALS_FILE="credentials.json"
+
+# Enable or disable local file uploads
+LOCAL_UPLOAD_ENABLED=false
+
+# Google Drive folder ID to upload files (leave empty for root)
+GOOGLE_DRIVE_FOLDER_ID="your_google_drive_folder_id_here"

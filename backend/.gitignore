@@ -2,3 +2,9 @@
 client_secrets.json
 .env
 __pycache__
+.vscode
+*.pyc
+.DS_Store
+.idea
+token.pickle
+.env.local
