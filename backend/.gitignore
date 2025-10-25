@@ -1,2 +1,4 @@
 /uploads
 client_secrets.json
+.env
+__pycache__
